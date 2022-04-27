@@ -286,6 +286,10 @@ body, input {
 	content: "shiori";
 	background-color: #ffc;
 }
+#content .saori:before {
+	content: "saori";
+	background-color: #add;
+}
 #content .spec:before {
 	content: "spec";
 	background-color: #cff;
