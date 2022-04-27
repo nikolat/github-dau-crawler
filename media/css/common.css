@@ -282,6 +282,14 @@ body, input {
 	content: "plugin";
 	background-color: #bbf;
 }
+#content .shiori:before {
+	content: "shiori";
+	background-color: #ffc;
+}
+#content .spec:before {
+	content: "spec";
+	background-color: #cff;
+}
 #content .hentry:hover {
 	border-color: #fff #999 #999 #fff;
 	background-color: #fff;
