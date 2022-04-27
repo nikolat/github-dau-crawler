@@ -290,6 +290,10 @@ body, input {
 	content: "saori";
 	background-color: #add;
 }
+#content .tool:before {
+	content: "tool";
+	background-color: #dad;
+}
 #content .spec:before {
 	content: "spec";
 	background-color: #cff;
