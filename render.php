@@ -117,6 +117,7 @@ function s($s)
 <link rel="stylesheet" href="./media/css/common.css" media="screen and (min-width: 481px)" />
 <link rel="stylesheet" href="./media/css/smartphone.css" media="only screen and (max-width: 480px)" />
 <link rel="help" href="./about.html" />
+<link rel="alternate" type="application/rss+xml" href="./rss2.xml" />
 <script src="./update.php" defer="defer"></script>
 </head>
 <body>
