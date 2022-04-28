@@ -153,7 +153,6 @@ body, input {
 }
 #header #search-area .actions {
 	margin-top: 2px;
-	float: left;
 	width: 40px;
 	height: 11px;
 	display: inline-block;
