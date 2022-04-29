@@ -282,6 +282,10 @@ body, input {
 	content: "plugin";
 	background-color: #bbf;
 }
+#content .supplement:before {
+	content: "supplement";
+	background-color: #fcf;
+}
 #content .shiori:before {
 	content: "shiori";
 	background-color: #ffc;

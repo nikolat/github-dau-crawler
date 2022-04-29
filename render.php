@@ -42,6 +42,9 @@ for ($i = 0; $i < $n; $i++) {
     elseif (in_array('ukagaka-plugin', $topics)) {
         $type = 'plugin';
     }
+    elseif (in_array('ukagaka-supplement', $topics)) {
+        $type = 'supplement';
+    }
     elseif (in_array('ukagaka-shiori', $topics)) {
         $type = 'shiori';
     }
