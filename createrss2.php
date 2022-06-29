@@ -1,9 +1,20 @@
 <?php
 date_default_timezone_set('Asia/Tokyo');
 $max = 30;
-$search_filename = 'repos.json';
-$json = file_get_contents(__DIR__. '/repos/'. $search_filename);
-if ($json === false) {
+$next_filename = 'repos0.txt';
+$lines = file(__DIR__. '/repos/'. $next_filename, FILE_IGNORE_NEW_LINES);
+$header_end = false;
+$json = '';
+foreach ($lines as $line) {
+    if ($header_end) {
+        $json = $line;
+        break;
+    }
+    elseif ($line === '') {
+        $header_end = true;
+    }
+}
+if ($json === '') {
     throw new \RuntimeException('file not found.');
 }
 $data_repos = json_decode($json, true);
