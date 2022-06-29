@@ -7,98 +7,127 @@ $dl = true;
 $max = 30;
 $search_key = 'sirefaso';
 $search_url = 'https://api.github.com/search/repositories?q=topic:'. $search_key. '&sort=updated';
-$search_filename = 'repos.json';
+$next_filename = 'repos0.txt';
 if ($dl) {
-    download_file($search_url, 'repos/'. $search_filename);
+    download_file($search_url, 'repos/'. $next_filename);
 }
-$json = file_get_contents(__DIR__. '/repos/'. $search_filename);
-if ($json === false) {
-    throw new \RuntimeException('file not found.');
+$data_repos = [];
+$c = 0;
+while ($next_filename != '') {
+    $lines = file(__DIR__. '/repos/'. $next_filename, FILE_IGNORE_NEW_LINES);
+    $next_filename = '';
+    $header_end = false;
+    foreach ($lines as $line) {
+        if (preg_match('/<(.+?)>; rel="next"/', $line, $matches)) {
+            $next_url = $matches[1];
+            $next_filename = 'repos'. ($c + 1). '.txt';
+            if ($dl) {
+                download_file($next_url, 'repos/'. $next_filename);
+            }
+            $json = file_get_contents(__DIR__. '/repos/'. $next_filename);
+            if ($json === false) {
+                throw new \RuntimeException('file not found.');
+            }
+        }
+        elseif ($header_end) {
+            $json = $line;
+            $data_repos[$c] = json_decode($json, true);
+            $c++;
+            break;
+        }
+        elseif ($line === '') {
+            $header_end = true;
+        }
+    }
 }
-$data_repos = json_decode($json, true);
-$n = $data_repos['total_count'];
+$n = $data_repos[0]['total_count'];
 if ($n > $max) {
     $n = $max;
 }
 $repos = [];
 $c = 0;
 $date_now = strtotime('now');
-for ($i = 0; $i < $n; $i++) {
-    $item = $data_repos['items'][$i];
-    if (!isset($item['topics'])) {
-        continue;
+for ($j = 0; $j < count($data_repos); $j++) {
+    for ($i = 0; $i < $n; $i++) {
+        if (!isset($data_repos[$j]['items'][$i])) {
+            break;
+        }
+        $item = $data_repos[$j]['items'][$i];
+        if (!isset($item['topics'])) {
+            continue;
+        }
+        $topics = $item['topics'];
+        $type = '';
+        if (in_array('ukagaka-ghost', $topics)) {
+            $type = 'ghost';
+        }
+        elseif (in_array('ukagaka-shell', $topics)) {
+            $type = 'shell';
+        }
+        elseif (in_array('ukagaka-balloon', $topics)) {
+            $type = 'balloon';
+        }
+        elseif (in_array('ukagaka-plugin', $topics)) {
+            $type = 'plugin';
+        }
+        elseif (in_array('ukagaka-supplement', $topics)) {
+            $type = 'supplement';
+        }
+        elseif (in_array('ukagaka-shiori', $topics)) {
+            $type = 'shiori';
+        }
+        elseif (in_array('ukagaka-saori', $topics)) {
+            $type = 'saori';
+        }
+        elseif (in_array('ukagaka-tool', $topics)) {
+            $type = 'tool';
+        }
+        elseif (in_array('ukagaka-spec', $topics)) {
+            $type = 'spec';
+        }
+        else {
+            continue;
+        }
+        $date_update = strtotime($item['pushed_at']);
+        $diff = $date_now - $date_update;
+        $classname = '';
+        if ($diff < 1 * 24 * 60 * 60) {
+            $classname = 'days-over-0';
+        }
+        else if ($diff < 7 * 24 * 60 * 60) {
+            $classname = 'days-over-1';
+        }
+        else if ($diff < 30 * 24 * 60 * 60) {
+            $classname = 'days-over-7';
+        }
+        else if ($diff < 365 * 24 * 60 * 60) {
+            $classname = 'days-over-30';
+        }
+        else {
+            $classname = 'days-over-365';
+        }
+        $repo = [
+            'id' => str_replace('/', '_', $item['full_name']),
+            'title' => $item['name'],
+            'category' => $type,
+            'classname' => $classname,
+            'author' => $item['owner']['login'],
+            'html_url' => $item['html_url'],
+            'created_at_time' => $item['created_at'],
+            'created_at_str' => date("Y-m-d H:i:s", strtotime($item['created_at'])),
+            'updated_at_time' => $item['pushed_at'],
+            'updated_at_str' => date("Y-m-d H:i:s", strtotime($item['pushed_at']))
+        ];
+        $repos[$c] = $repo;
+        $c++;
     }
-    $topics = $item['topics'];
-    $type = '';
-    if (in_array('ukagaka-ghost', $topics)) {
-        $type = 'ghost';
-    }
-    elseif (in_array('ukagaka-shell', $topics)) {
-        $type = 'shell';
-    }
-    elseif (in_array('ukagaka-balloon', $topics)) {
-        $type = 'balloon';
-    }
-    elseif (in_array('ukagaka-plugin', $topics)) {
-        $type = 'plugin';
-    }
-    elseif (in_array('ukagaka-supplement', $topics)) {
-        $type = 'supplement';
-    }
-    elseif (in_array('ukagaka-shiori', $topics)) {
-        $type = 'shiori';
-    }
-    elseif (in_array('ukagaka-saori', $topics)) {
-        $type = 'saori';
-    }
-    elseif (in_array('ukagaka-tool', $topics)) {
-        $type = 'tool';
-    }
-    elseif (in_array('ukagaka-spec', $topics)) {
-        $type = 'spec';
-    }
-    else {
-        continue;
-    }
-    $date_update = strtotime($item['pushed_at']);
-    $diff = $date_now - $date_update;
-    $classname = '';
-    if ($diff < 1 * 24 * 60 * 60) {
-        $classname = 'days-over-0';
-    }
-    else if ($diff < 7 * 24 * 60 * 60) {
-        $classname = 'days-over-1';
-    }
-    else if ($diff < 30 * 24 * 60 * 60) {
-        $classname = 'days-over-7';
-    }
-    else if ($diff < 365 * 24 * 60 * 60) {
-        $classname = 'days-over-30';
-    }
-    else {
-        $classname = 'days-over-365';
-    }
-    $repo = [
-        'id' => str_replace('/', '_', $item['full_name']),
-        'title' => $item['name'],
-        'category' => $type,
-        'classname' => $classname,
-        'author' => $item['owner']['login'],
-        'html_url' => $item['html_url'],
-        'created_at_time' => $item['created_at'],
-        'created_at_str' => date("Y-m-d H:i:s", strtotime($item['created_at'])),
-        'updated_at_time' => $item['pushed_at'],
-        'updated_at_str' => date("Y-m-d H:i:s", strtotime($item['pushed_at']))
-    ];
-    $repos[$c] = $repo;
-    $c++;
 }
 function download_file($url, $filename)
 {
     $ch = curl_init($url);
     $fp = fopen($filename, 'w');
     curl_setopt($ch, CURLOPT_FILE, $fp);
-    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_HEADER, true);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/1.0 (Win3.1)');
     curl_exec($ch);
     if(curl_error($ch)) {
@@ -156,7 +185,7 @@ function s($s)
 <?php } ?>
 	</section>
 	<footer id="footer">
-		<p id="copyright"><small>Copyright &#169; 2022 <a href="./">偽SiReFaSo</a></small></p>
+		<p id="copyright"><small>Copyright &#169; 2022 <a href="./">偽SiReFaSo</a></small>, Generated by <a href="https://github.com/nikolat/github-dau-crawler">github-dau-crawler</a></p>
 	</footer>
 </body>
 </html>
