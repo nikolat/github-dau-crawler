@@ -4,7 +4,6 @@ if (!file_exists('./repos/')) {
     mkdir('./repos');
 }
 $dl = true;
-$max = 30;
 $search_key = 'sirefaso';
 $search_url = 'https://api.github.com/search/repositories?q=topic:'. $search_key. '&sort=updated';
 $next_filename = 'repos0.txt';
@@ -39,10 +38,6 @@ while ($next_filename != '') {
             $header_end = true;
         }
     }
-}
-$n = $data_repos[0]['total_count'];
-if ($n > $max) {
-    $n = $max;
 }
 $repos = [];
 $c = 0;
