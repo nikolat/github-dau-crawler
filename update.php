@@ -1,6 +1,6 @@
 <?php
 $dl = false;
-$search_filename = 'repos.json';
+$search_filename = 'repos0.txt';
 if (file_exists('./repos/'. $search_filename)) {
     $t_file = filemtime('repos/'. $search_filename);
     $date_now = new DateTime('now');
