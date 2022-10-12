@@ -20,12 +20,14 @@ if (isset($_GET['force'])) {
 }
 header('Content-type: text/javascript; charset=UTF-8');
 if ($dl) {
-    ob_start();
-    include 'render.php';
-    $html = ob_get_contents();
-    include 'createrss2.php';
-    ob_end_clean();
-    file_put_contents(__DIR__. '/index.html', $html);
+    // https://pisuke-code.com/php-run-async-process-by-exec/
+    $command = "php generate.php";
+    if ((substr(PHP_OS, 0, 3) !== 'WIN')) {
+        exec($command . ' >/dev/null 2>&1 &');
+    } else {
+        $fp = popen('start "" '. $command, 'r');
+        pclose($fp);
+    }
     echo 'console.log("index.html: update");';
 }
 else {
