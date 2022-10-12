@@ -1,5 +1,8 @@
 <?php
 date_default_timezone_set('Asia/Tokyo');
+if (!file_exists('./docs/')) {
+    mkdir('./docs');
+}
 $max = 30;
 $next_filename = 'repos0.txt';
 $lines = file(__DIR__. '/repos/'. $next_filename, FILE_IGNORE_NEW_LINES);
@@ -73,14 +76,13 @@ $mypath = dirname(__FILE__);
 $myname = mb_encode_numericentity('偽SiReFaSo', array( 0x0, 0x10ffff, 0, 0xffffff ), 'UTF-8');
 $mydescription = mb_encode_numericentity('GitHubで公開されている伺か関連アプリの更新情報を一覧表示する', array( 0x0, 0x10ffff, 0, 0xffffff ), 'UTF-8');
 
-$fp = fopen($mypath. '/rss2.xml', 'w');
+$fp = fopen($mypath. '/docs/rss2.xml', 'w');
 fwrite($fp, '<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
 <title>'. $myname. '</title>
 <link>'. $myurl. '</link>
 <description>'. $mydescription. '</description>
-<lastBuildDate>'. date('D, d M Y H:i:s O'). '</lastBuildDate>
 <atom:link href="'. $myurl. 'rss2.xml" rel="self" type="application/rss+xml" />
 ');
 

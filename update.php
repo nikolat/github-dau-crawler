@@ -1,33 +1,11 @@
 <?php
-$dl = false;
-$search_filename = 'repos0.txt';
-if (file_exists('./repos/'. $search_filename)) {
-    $t_file = filemtime('repos/'. $search_filename);
-    $date_now = new DateTime('now');
-    $date_now->modify('-60 minute');
-    $t_now = $date_now->getTimestamp();
-    if ($t_file < $t_now) {
-        $dl = true;
-    }
+ob_start();
+include 'render.php';
+$html = ob_get_contents();
+include 'createrss2.php';
+ob_end_clean();
+if (!file_exists('./docs/')) {
+    mkdir('./docs');
 }
-else {
-    $dl = true;
-}
-if (isset($_GET['force'])) {
-    if ($_GET['force'] == 'true') {
-        $dl = true;
-    }
-}
-header('Content-type: text/javascript; charset=UTF-8');
-if ($dl) {
-    ob_start();
-    include 'render.php';
-    $html = ob_get_contents();
-    include 'createrss2.php';
-    ob_end_clean();
-    file_put_contents(__DIR__. '/index.html', $html);
-    echo 'console.log("index.html: update");';
-}
-else {
-    echo 'console.log("index.html: keep");';
-}
+array_map('unlink', glob('repos/*.txt'));
+file_put_contents(__DIR__. '/docs/index.html', $html);
