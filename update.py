@@ -11,16 +11,17 @@ if __name__ == '__main__':
 	with open(config_filename, encoding='utf-8') as file:
 		config = yaml.safe_load(file)
 	url = 'https://api.github.com/search/repositories'
+	headers = {'User-Agent': 'Mozilla/1.0 (Win3.1)'}
 	payload = {'q': f'topic:{config["search_key"]}', 'sort': 'updated'}
 	responses = []
-	response = requests.get(url, params=payload)
+	response = requests.get(url, params=payload, headers=headers)
 	response.raise_for_status()
 	responses.append(response)
 	pattern = re.compile(r'<(.+?)>; rel="next"')
 	result = pattern.search(response.headers['link']) if 'link' in response.headers else None
 	while result:
 		url = result.group(1)
-		response = requests.get(url)
+		response = requests.get(url, headers=headers)
 		response.raise_for_status()
 		responses.append(response)
 		result = pattern.search(response.headers['link']) if 'link' in response.headers else None
@@ -33,7 +34,7 @@ if __name__ == '__main__':
 				continue
 			if item['full_name'] in config['redirect']:
 				url = 'https://api.github.com/repos/' + config['redirect'][item['full_name']]
-				r = requests.get(url)
+				r = requests.get(url, headers=headers)
 				r.raise_for_status()
 				r_item = r.json()
 				item['created_at'] = r_item['created_at']
