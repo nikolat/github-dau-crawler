@@ -50,11 +50,16 @@ class GitHubDauCrawler(crawler.GitHubApiCrawler):
 				else:
 					classname = 'days-over-365'
 				entry = {
-					'id': item['full_name'].replace('/', '_'),
+					'id': item['full_name'],
 					'title': item['name'],
 					'category': category,
 					'classname': classname,
 					'author': item['owner']['login'],
+					'author_url': item['owner']['html_url'],
+					'author_avatar': item['owner']['avatar_url'],
+					'content_text': '',
+					'summary': item['description'] if item['description'] is not None else '',
+					'tags': item['topics'],
 					'html_url': item['html_url'],
 					'created_at_time': item['created_at'],
 					'created_at_str': dt_created.strftime('%Y-%m-%d %H:%M:%S'),
@@ -71,6 +76,34 @@ class GitHubDauCrawler(crawler.GitHubApiCrawler):
 		self._categories = categories
 		self._authors = authors
 		return self
+
+	def _get_feed_dict(self, title, base_url, description, entries):
+		return {
+			'version': 'https://jsonfeed.org/version/1.1',
+			'title': title,
+			'home_page_url': base_url,
+			'feed_url': f'{base_url}{self._JSON_FEED_FILENAME}',
+			'description': description,
+			'items': [
+				{
+					'id': e['id'],
+					'url': e['html_url'],
+					'title': e['title'],
+					'content_text': e['content_text'],
+					'summary': e['summary'],
+					'date_published': e['created_at_time'],
+					'date_modified': e['updated_at_time'],
+					'authors': [
+						{
+							'name': e['author'],
+							'url': e['author_url'],
+							'avatar': e['author_avatar']
+						}
+					],
+					'tags': e['tags']
+				}
+			for e in entries]
+		}
 
 if __name__ == '__main__':
 	g = GitHubDauCrawler()
